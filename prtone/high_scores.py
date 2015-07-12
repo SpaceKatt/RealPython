@@ -92,7 +92,23 @@ def print_scores(list):
         print i[0], i[1]  
     
 def do_task(inp):
-    """Does it all."""
+    """
+    Does it all.
+    
+    >>> curDir = os.getcwd()
+    >>> scores_file = 'scores.csv'
+    >>> input = os.path.join(curDir, scores_file)
+    >>> do_task(input)
+    Empiro 23
+    L33tH4x 42
+    LLCoolDave 27
+    MaxxT 25
+    Misha46 25
+    O_O 22
+    johnsmith 30
+    red 12
+    tom123 26
+    """
     check_file_exists(inp)
     scoreList = get_list_from_csv(inp)
     check_list(scoreList)
