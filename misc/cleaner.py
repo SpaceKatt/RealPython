@@ -44,14 +44,14 @@ make my life easier:
 #    return args.replace
 
 class myraw(object):
-     def __init__(self, values):
-         self.values = values
-         self.stream = self.mygen()
-     def mygen(self):
-         for i in self.values:
-             yield i
-     def readline(self):
-         return str(self.stream.next())
+    def __init__(self, values):
+        self.values = values
+        self.stream = self.mygen()
+    def mygen(self):
+        for i in self.values:
+            yield i
+    def readline(self):
+        return str(self.stream.next())
 
 def grab_easy_args():
     """
@@ -82,9 +82,41 @@ def grab_replace():
     better = raw_input("--> What is the better name?")
     return bad, better
 
+def grab_name():
+    """
+    >>> sys.stdin = myraw(['misc/cleaner.py'])
+    >>> grab_name()
+    --> What is the module name? 'misc/cleaner.py'
+    >>> sys.stdin = sys.__stdin__
+    """
+    name = raw_input("--> What is the module name? ")
+    return name
+
+def find_file(name):
+    """
+    Finds and returns the location of a python module.
+    
+    >>> print find_file("cleaner.py") # doctest: +ELLIPSIS
+    /.../RealPython/misc/cleaner.py
+    >>> print find_file("capitals.py") # doctest: +ELLIPSIS
+    /.../RealPython/prtone/capitals.py
+    """
+    path = os.path.dirname(os.path.abspath(name))
+    path = os.path.join(path, name)
+    if not os.path.exists(path):
+        sys.exit('{} does not exist.'.format(path))
+    return path
+
 def file_data(file):
-    """Get file as a list of strings, taken line-by-line."""
-    pass
+    """
+    Fetch file text.
+    
+    >>> file_data(find_file("cleaner.py")) # doctest: +ELLIPSIS
+    'import argparse, os, sys...testmod(optionflags=doctest.ELLIPSIS)'
+    """
+    with open(file, 'r') as f:
+        text = f.read()
+    return text
 
 def do_replace(bad, better):
     """
@@ -98,18 +130,21 @@ def do_replace(bad, better):
 #    list_code = file_data(module_name)
     pass
 
-def write_replaced_to_file(code_list, file):
+def write_processed_to_file(code_list, file):
     """Writes list of replacements to *.py file."""
     pass
 
 def do_stuff():
+    module_location = find_file(grab_name())
     args = list(grab_easy_args())
+    data = file_data(module_location)
     if 'r' in args:
         bad, better = grab_replace()
         do_replace(bad, better)
     print args
+    write_processed_to_file(data, module_location)
     
-do_stuff()
+#do_stuff()
     
 if __name__ == "__main__":
     import doctest

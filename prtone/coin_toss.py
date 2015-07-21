@@ -1,6 +1,8 @@
 from __future__ import division
 from random import randint
 
+#Add option for no printing, or find better way to test
+
 """
 For a certian number of trials:
     A coin is flipped:
