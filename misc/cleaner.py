@@ -55,6 +55,8 @@ class myraw(object):
 
 def grab_easy_args():
     """
+    Uses raw_input to grab instructional arguments.
+    
     >>> sys.stdin = myraw(['-r'])
     >>> grab_easy_args() # doctest: +ELLIPSIS
     -r ; replace WORD with BETTER_WORD
@@ -98,7 +100,7 @@ def find_file(name):
     
     >>> print find_file("cleaner.py") # doctest: +ELLIPSIS
     /.../RealPython/misc/cleaner.py
-    >>> print find_file("capitals.py") # doctest: +ELLIPSIS
+    >>> print find_file("prtone/capitals.py") # doctest: +ELLIPSIS
     /.../RealPython/prtone/capitals.py
     """
     path = os.path.dirname(os.path.abspath(name))
@@ -109,13 +111,14 @@ def find_file(name):
 
 def file_data(file):
     """
-    Fetch file text.
+    Fetch file text, as a list of strings,
+    each string is one line of the file.
     
     >>> file_data(find_file("cleaner.py")) # doctest: +ELLIPSIS
-    'import argparse, os, sys...testmod(optionflags=doctest.ELLIPSIS)'
+    [..., '    doctest.testmod(optionflags=doctest.ELLIPSIS)']
     """
     with open(file, 'r') as f:
-        text = f.read()
+        text = list(f)
     return text
 
 def do_replace(bad, better):
@@ -135,6 +138,7 @@ def write_processed_to_file(code_list, file):
     pass
 
 def do_stuff():
+    """Does the stuff to do the thing."""
     module_location = find_file(grab_name())
     args = list(grab_easy_args())
     data = file_data(module_location)
