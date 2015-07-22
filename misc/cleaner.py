@@ -77,11 +77,11 @@ def grab_replace():
     """
     >>> sys.stdin = myraw(['wordone', 'wordtwo'])
     >>> grab_replace()
-    --> What is the bad name?--> What is the better name?('wordone', 'wordtwo')
+    -> What is the bad name? -> What is the better name? ('wordone', 'wordtwo')
     >>> sys.stdin = sys.__stdin__
     """
-    bad = raw_input("--> What is the bad name?")
-    better = raw_input("--> What is the better name?")
+    bad = raw_input("-> What is the bad name? ")
+    better = raw_input("-> What is the better name? ")
     return bad, better
 
 def grab_name():
@@ -94,17 +94,38 @@ def grab_name():
     name = raw_input("--> What is the module name? ")
     return name
 
-def find_file(name):
+def find_file(file_name, topdir):
     """
     Finds and returns the location of a python module.
     
-    >>> print find_file("cleaner.py") # doctest: +ELLIPSIS
+    >>> print find_file("cleaner.py", '..') # doctest: +ELLIPSIS
     /.../RealPython/misc/cleaner.py
-    >>> print find_file("prtone/capitals.py") # doctest: +ELLIPSIS
+    >>> print find_file("prtone/capitals.py", '..') # doctest: +ELLIPSIS
     /.../RealPython/prtone/capitals.py
+    >>> print find_file('alalalgd', '..')
+    None
     """
-    path = os.path.dirname(os.path.abspath(name))
-    path = os.path.join(path, name)
+    for dirpath, dirnames, files in os.walk(topdir):
+        for name in files:
+            path = os.path.join(dirpath, name)
+            if file_name in path and path.endswith(".py"):
+                return os.path.abspath(path)
+            else: 
+                pass
+
+def get_path():
+    """
+    Facilitates the process of getting the file path.
+    
+    >>> sys.stdin = myraw(['misc/cleaner.py'])
+    >>> get_path() # doctest: +ELLIPSIS
+    --> ... '/.../RealPython/misc/cleaner.py'
+    >>> sys.stdin = sys.__stdin__
+    """
+    file_name = grab_name()
+    path = find_file(file_name, '..')
+    if path == None:
+        path = find_file(file_name, '/')
     if not os.path.exists(path):
         sys.exit('{} does not exist.'.format(path))
     return path
@@ -114,38 +135,42 @@ def file_data(file):
     Fetch file text, as a list of strings,
     each string is one line of the file.
     
-    >>> file_data(find_file("cleaner.py")) # doctest: +ELLIPSIS
+    >>> file_data(find_file("cleaner.py", '..')) # doctest: +ELLIPSIS
     [..., '    doctest.testmod(optionflags=doctest.ELLIPSIS)']
     """
     with open(file, 'r') as f:
         text = list(f)
     return text
 
-def do_replace(bad, better):
+def do_replace(text_list, bad, better):
     """
     Once list of code lines has been gathered,
     we now replace the undesirable word with a better word.
     Then, we return the transformed list.
-
-    Maybe add a search for lines that actually have bad word?
-    Find a way to find module from name
+    
+    >>> bar = ['foo this is a string in a list.']
+    >>> do_replace(bar, 'foo', 'Yup,')
+    ['Yup, this is a string in a list.']
     """
-#    list_code = file_data(module_name)
-    pass
-
+    new_list = []
+    for line in text_list:
+        line = line.replace(bad, better)
+        new_list.append(line)
+    return new_list
+        
 def write_processed_to_file(code_list, file):
     """Writes list of replacements to *.py file."""
     pass
 
 def do_stuff():
     """Does the stuff to do the thing."""
-    module_location = find_file(grab_name())
+    module_location = get_path()
     args = list(grab_easy_args())
     data = file_data(module_location)
     if 'r' in args:
         bad, better = grab_replace()
-        do_replace(bad, better)
-    print args
+        stuff = do_replace(data, bad, better)
+    print stuff
     write_processed_to_file(data, module_location)
     
 #do_stuff()
