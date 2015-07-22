@@ -1,92 +1,78 @@
-import argparse, os, sys
-
 """
 
 This Module is a collection of commands that will
 make my life easier:
-    
+
     Usage:
-        
-    # Not like this: python module.py [argument list]
+
     Run script, use raw_input prompt
-    
+
     Arguments:
-        
+
     '-r' ; Replace name
     '-w' ; Remove whitespace on end
-    
-    Example: (for replacing a name)
-    
-    python python module.py -r "NamE" "better_name"
+
+    Example: (for replacing a name, 'topdir' with 'search_start')
+
+    $ python cleaner.py
+    >>> sys.stdin = MyRaw(['misc.py', 'r', 'topdir', 'search_start'])
+    >>> do_stuff() # doctest: +ELLIPSIS
+    --> What is the module name? -r ; replace WORD with BETTER_WORD
+    -w ; coming soon
+    <BLANKLINE>
+    What is required?--> What is the bad name?--> What is the better name?-
+    >>> sys.stdin = sys.__stdin__
 
 """
+import os, sys
 
-#def get_arguments():
-#    """
-#    From the command line, grab arguments useing argparse.
-#    
-#    Usage:
-#        '-r' ; BADNAME BETTER_NAME
-#    
-#    And then write test here
-#    """
-#    # Using argparse to grab from cmmd
-#    parser = argparse.ArgumentParser()
-#    parser.add_argument("-r", "--replace", type = str, nargs=2,
-#                        help='Replace one word with another.')
-#    parser.add_argument("-w", "--whitedel", type = None,
-#                        help='Delete the whitespace!')
-#    parser.add_argument("module", type = str, nargs=1)
-#    args = parser.parse_args()
-#    
-#    check if module exists
-#    
-#    return args.replace
-
-class myraw(object):
+class MyRaw(object):
+    """Feeds input into raw_input during doctesting."""
     def __init__(self, values):
         self.values = values
         self.stream = self.mygen()
     def mygen(self):
+        """Generates values when needed."""
         for i in self.values:
             yield i
     def readline(self):
+        """Need to look up why this one works."""
         return str(self.stream.next())
 
 def grab_easy_args():
     """
     Uses raw_input to grab instructional arguments.
-    
-    >>> sys.stdin = myraw(['-r'])
+
+    >>> sys.stdin = MyRaw(['-r'])
     >>> grab_easy_args() # doctest: +ELLIPSIS
     -r ; replace WORD with BETTER_WORD
     ...
-    What is required? '-r'
+    What is required?-'-r'
     >>> sys.stdin = sys.__stdin__
-    """ 
-    r = '-r ; replace WORD with BETTER_WORD'
-    w = '-w ; coming soon\n'
-    cmd_list = [r, w]
+    """
+    replace = '-r ; replace WORD with BETTER_WORD'
+    whitespac = '-w ; coming soon\n'
+    cmd_list = [replace, whitespac]
     for i in cmd_list:
         print i
-    prompt = "What is required? "
+    prompt = "What is required?-"
     args = raw_input(prompt)
     return args
 
 def grab_replace():
     """
-    >>> sys.stdin = myraw(['wordone', 'wordtwo'])
+    >>> sys.stdin = MyRaw(['wordone', 'wordtwo'])
     >>> grab_replace()
-    -> What is the bad name? -> What is the better name? ('wordone', 'wordtwo')
+    -> What is the bad name?--> What is the better name?-('wordone', 'wordtwo')
     >>> sys.stdin = sys.__stdin__
     """
-    bad = raw_input("-> What is the bad name? ")
-    better = raw_input("-> What is the better name? ")
+    bad = raw_input("-> What is the bad name?-")
+    better = raw_input("-> What is the better name?-")
     return bad, better
 
 def grab_name():
     """
-    >>> sys.stdin = myraw(['misc/cleaner.py'])
+    >>> sys.stdin = MyRaw(['misc/cleaner.py'])
     >>> grab_name()
     --> What is the module name? 'misc/cleaner.py'
     >>> sys.stdin = sys.__stdin__
@@ -97,11 +83,12 @@ def grab_name():
 def find_file(file_name, topdir):
     """
     Finds and returns the location of a python module.
-    
-    >>> print find_file("cleaner.py", '..') # doctest: +ELLIPSIS
+
+    >>> path =  find_file("cleaner.py", '..')
+    >>> print path # doctest: +ELLIPSIS
     /.../RealPython/misc/cleaner.py
-    >>> print find_file("prtone/capitals.py", '..') # doctest: +ELLIPSIS
-    /.../RealPython/prtone/capitals.py
+    >>> os.path.exists(path)
+    True
     >>> print find_file('alalalgd', '..')
     None
     """
@@ -110,14 +97,14 @@ def find_file(file_name, topdir):
             path = os.path.join(dirpath, name)
             if file_name in path and path.endswith(".py"):
                 return os.path.abspath(path)
-            else: 
+            else:
                 pass
 
 def get_path():
     """
     Facilitates the process of getting the file path.
-    
-    >>> sys.stdin = myraw(['misc/cleaner.py'])
+
+    >>> sys.stdin = MyRaw(['misc/cleaner.py'])
     >>> get_path() # doctest: +ELLIPSIS
     --> ... '/.../RealPython/misc/cleaner.py'
     >>> sys.stdin = sys.__stdin__
@@ -130,16 +117,16 @@ def get_path():
         sys.exit('{} does not exist.'.format(path))
     return path
 
-def file_data(file):
+def file_data(input_file):
     """
     Fetch file text, as a list of strings,
     each string is one line of the file.
-    
+
     >>> file_data(find_file("cleaner.py", '..')) # doctest: +ELLIPSIS
-    [..., '    doctest.testmod(optionflags=doctest.ELLIPSIS)']
+    [..., '    doctest.testmod(optionflags=doctest.ELLIPSIS)\\n']
     """
-    with open(file, 'r') as f:
-        text = list(f)
+    with open(input_file, 'r') as filz:
+        text = list(filz)
     return text
 
 def do_replace(text_list, bad, better):
@@ -147,7 +134,7 @@ def do_replace(text_list, bad, better):
     Once list of code lines has been gathered,
     we now replace the undesirable word with a better word.
     Then, we return the transformed list.
-    
+
     >>> bar = ['foo this is a string in a list.']
     >>> do_replace(bar, 'foo', 'Yup,')
     ['Yup, this is a string in a list.']
@@ -157,10 +144,12 @@ def do_replace(text_list, bad, better):
         line = line.replace(bad, better)
         new_list.append(line)
     return new_list
-        
-def write_processed_to_file(code_list, file):
+
+def write_processed_to_file(code_list, input_file):
     """Writes list of replacements to *.py file."""
-    pass
+    with open(input_file, 'w') as fil:
+        for line in code_list:
+            fil.write(line)
 
 def do_stuff():
     """Does the stuff to do the thing."""
@@ -170,11 +159,10 @@ def do_stuff():
     if 'r' in args:
         bad, better = grab_replace()
         stuff = do_replace(data, bad, better)
-    print stuff
-    write_processed_to_file(data, module_location)
-    
-#do_stuff()
-    
+    write_processed_to_file(stuff, module_location)
+
+do_stuff()
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod(optionflags=doctest.ELLIPSIS)
