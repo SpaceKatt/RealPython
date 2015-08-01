@@ -7,7 +7,7 @@ from pyPdf import PdfFileWriter as pdw
 
 def get_path():
     '''Returns the file path and some pdf objects.'''
-    path = '/home/spacekatt/RealPython/prtone'
+    path = os.getcwd()
     file_path = os.path.join(path, 'practice_files/ugly.pdf')
     input_file = pdr(file(file_path, 'rb'))
     output_pdf = pdw()
