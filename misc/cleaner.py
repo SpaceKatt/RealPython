@@ -1,5 +1,4 @@
 """
-
 This Module is a collection of commands that will
 make my life easier:
 
@@ -22,7 +21,6 @@ make my life easier:
     <BLANKLINE>
     What is required?--> What is the bad name?--> What is the better name?-
     >>> sys.stdin = sys.__stdin__
-
 """
 import os, sys
 
@@ -93,6 +91,7 @@ def find_file(file_name, topdir):
     None
     """
     for dirpath, dirnames, files in os.walk(topdir):
+        del dirnames
         for name in files:
             path = os.path.join(dirpath, name)
             if file_name in path and path.endswith(".py"):
@@ -146,7 +145,7 @@ def do_replace(text_list, bad, better):
     return new_list
 
 def write_processed_to_file(code_list, input_file):
-    """Writes list of replacements to *.py file."""
+    """Writes list of code to *.py file."""
     with open(input_file, 'w') as fil:
         for line in code_list:
             fil.write(line)
@@ -159,6 +158,8 @@ def do_stuff():
     if 'r' in args:
         bad, better = grab_replace()
         stuff = do_replace(data, bad, better)
+    if 'w' in args:
+        pass # should take out if statements into new function
     write_processed_to_file(stuff, module_location)
 
 do_stuff()
